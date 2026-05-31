@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuplock Qty Calculator – BBF Scaffolding</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --card: #1a2235;
+    --border: #243050;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Rajdhani', sans-serif;
+    --body: 'Exo 2', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(249,115,22,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+  }
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 30px rgba(249,115,22,0.15);
+  }
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--head); font-weight: 700; font-size: 15px;
+    color: #000; letter-spacing: 1px; flex-shrink: 0;
+  }
+  .logo-text { flex: 1; }
+  .logo-text h1 {
+    font-family: var(--head); font-size: 19px; font-weight: 700;
+    color: var(--accent); letter-spacing: 2px; text-transform: uppercase; line-height: 1;
+  }
+  .logo-text p {
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+    letter-spacing: 1px; margin-top: 3px;
+  }
+  .badge {
+    background: rgba(249,115,22,0.15); border: 1px solid var(--accent);
+    color: var(--accent); font-family: var(--mono); font-size: 10px;
+    padding: 4px 10px; border-radius: 4px; letter-spacing: 1px;
+  }
+
+  /* Unit Toggle */
+  .unit-toggle {
+    display: flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .unit-toggle button {
+    padding: 7px 16px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  .unit-toggle button.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+  }
+
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .section-label {
+    font-family: var(--mono); font-size: 10px; color: var(--accent);
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 22px;
+  }
+  .field {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 13px 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field:focus-within {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+  }
+  .field label {
+    display: block; font-family: var(--mono); font-size: 10px;
+    color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px;
+  }
+  .field-row { display: flex; align-items: center; gap: 6px; }
+  .field input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--mono); font-size: 20px; width: 100%;
+  }
+  .field .unit {
+    font-family: var(--mono); font-size: 12px; color: var(--muted); flex-shrink: 0;
+  }
+
+  .options-row { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 22px; }
+  .opt-btn {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--muted); font-family: var(--body); font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .opt-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .opt-btn.active {
+    background: rgba(249,115,22,0.15); border-color: var(--accent); color: var(--accent);
+  }
+
+  .calc-btn {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; color: #000;
+    font-family: var(--head); font-size: 18px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s; margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(249,115,22,0.3);
+  }
+  .calc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(249,115,22,0.45); }
+  .calc-btn:active { transform: translateY(0); }
+
+  #results { display: none; }
+
+  /* Total Weight Hero Card */
+  .weight-hero {
+    background: linear-gradient(135deg, rgba(234,179,8,0.15) 0%, rgba(249,115,22,0.12) 100%);
+    border: 2px solid var(--yellow);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    animation: slideUp 0.3s ease both;
+    flex-wrap: wrap;
+  }
+  .weight-hero .wh-icon { font-size: 48px; flex-shrink: 0; }
+  .weight-hero .wh-body { flex: 1; }
+  .weight-hero .wh-label {
+    font-family: var(--mono); font-size: 10px; color: var(--yellow);
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .weight-hero .wh-value {
+    font-family: var(--head); font-size: 52px; font-weight: 700;
+    color: var(--yellow); line-height: 1;
+  }
+  .weight-hero .wh-sub {
+    font-family: var(--mono); font-size: 13px; color: var(--muted); margin-top: 6px;
+  }
+  .weight-hero .wh-breakdown {
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .weight-hero .wh-breakdown div {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    margin-bottom: 3px; line-height: 1.5;
+  }
+  .weight-hero .wh-breakdown span { color: var(--text); }
+
+  .params-strip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 22px;
+  }
+  .param-item { text-align: center; }
+  .param-item .pval { font-family: var(--mono); font-size: 16px; color: var(--accent); }
+  .param-item .plbl {
+    font-family: var(--mono); font-size: 9px; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;
+  }
+
+  /* Summary Table */
+  .summary-table {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; margin-bottom: 22px;
+    animation: slideUp 0.4s ease both;
+  }
+  .summary-table table { width: 100%; border-collapse: collapse; }
+  .summary-table thead th {
+    background: rgba(249,115,22,0.12); font-family: var(--mono);
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); padding: 11px 16px; text-align: left;
+  }
+  .summary-table tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+  .summary-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .summary-table td { padding: 12px 16px; font-family: var(--body); font-size: 14px; }
+  .summary-table td.num { font-family: var(--mono); text-align: right; }
+  .summary-table td.qty-base { color: var(--accent); font-size: 15px; }
+  .summary-table td.qty-buf { color: var(--green); font-size: 15px; }
+  .summary-table td.wt { color: var(--yellow); font-size: 14px; }
+  .summary-table tfoot td {
+    background: rgba(234,179,8,0.1); font-family: var(--mono);
+    font-size: 13px; font-weight: 700; padding: 13px 16px;
+    border-top: 2px solid var(--yellow); color: var(--yellow);
+    text-align: right;
+  }
+  .summary-table tfoot td:first-child { color: var(--text); text-align: left; font-size: 13px; }
+
+  .note-box {
+    background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 10px; padding: 13px 17px; font-size: 13px;
+    color: #93c5fd; line-height: 1.6; margin-bottom: 18px;
+    animation: slideUp 0.5s ease both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .print-btn, .reset-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-family: var(--body); font-size: 13px;
+    padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .print-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  @media (max-width: 520px) {
+    .input-grid { grid-template-columns: 1fr 1fr; }
+    .weight-hero { flex-direction: column; gap: 12px; }
+    .weight-hero .wh-value { font-size: 38px; }
+    .weight-hero .wh-breakdown { text-align: left; }
+    .badge { display: none; }
+    .summary-table { overflow-x: auto; }
+  }
+  @media print {
+    body { background: white; color: #000; }
+    header { position: static; background: #fff; border-bottom: 2px solid #f97316; }
+    .calc-btn, .print-btn, .reset-btn, .opt-btn, .field, .unit-toggle { display: none; }
+    #results { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">BBF</div>
+  <div class="logo-text">
+    <h1>Cuplock Calculator</h1>
+    <p>BBF SCAFFOLDING · QTY & WEIGHT ESTIMATOR</p>
+  </div>
+  <div class="unit-toggle">
+    <button id="btn-m" class="active" onclick="setUnit('m')">METRE</button>
+    <button id="btn-ft" onclick="setUnit('ft')">FEET</button>
+  </div>
+  <div class="badge">v4.0</div>
+</header>
+
+<main>
+
+  <div class="section-label">Structure Dimensions</div>
+  <div class="input-grid">
+    <div class="field">
+      <label>Length</label>
+      <div class="field-row">
+        <input type="number" id="length" value="457" min="1" step="0.1">
+        <span class="unit" id="u-len">m</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Height</label>
+      <div class="field-row">
+        <input type="number" id="height" value="21" min="1" step="0.1">
+        <span class="unit" id="u-ht">m</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Working Width</label>
+      <div class="field-row">
+        <input type="number" id="width" value="1.2" min="0.5" step="0.1">
+        <span class="unit" id="u-wd">m</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Buffer %</label>
+      <div class="field-row">
+        <input type="number" id="buffer" value="10" min="0" max="50" step="1">
+        <span class="unit">%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Scaffolding Type</div>
+  <div class="options-row" id="type-opts">
+    <button class="opt-btn active" data-val="facade" onclick="setOpt('type',this)">Façade / External</button>
+    <button class="opt-btn" data-val="shoring" onclick="setOpt('type',this)">Slab / Deck Shoring</button>
+  </div>
+
+  <div class="section-label">Vertical Lift <span id="lift-hint" style="color:var(--muted);font-size:9px;margin-left:6px">(metres)</span></div>
+  <div class="options-row" id="lift-opts">
+    <button class="opt-btn" data-m="0.5"  data-ft="1.64" onclick="setOpt('lift',this)">0.5 m / 1.64 ft</button>
+    <button class="opt-btn" data-m="1.0"  data-ft="3.28" onclick="setOpt('lift',this)">1.0 m / 3.28 ft</button>
+    <button class="opt-btn" data-m="1.5"  data-ft="4.92" onclick="setOpt('lift',this)">1.5 m / 4.92 ft</button>
+    <button class="opt-btn active" data-m="3.0" data-ft="9.84" onclick="setOpt('lift',this)">3.0 m / 9.84 ft</button>
+  </div>
+
+  <div class="section-label">Horizontal Bay Spacing <span id="bay-hint" style="color:var(--muted);font-size:9px;margin-left:6px">(metres)</span></div>
+  <div class="options-row" id="bay-opts">
+    <button class="opt-btn" data-m="1.2" data-ft="3.94" onclick="setOpt('bay',this)">1.2 m / 3.94 ft</button>
+    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('bay',this)">1.5 m / 4.92 ft</button>
+    <button class="opt-btn active" data-m="1.8" data-ft="5.91" onclick="setOpt('bay',this)">1.8 m / 5.91 ft</button>
+    <button class="opt-btn" data-m="2.4" data-ft="7.87" onclick="setOpt('bay',this)">2.4 m / 7.87 ft</button>
+  </div>
+
+  <div class="section-label">Ledger Vertical Spacing <span style="color:var(--muted);font-size:9px;margin-left:6px">(gap between horizontal ledger levels on standard)</span></div>
+  <div class="options-row" id="leds-opts">
+    <button class="opt-btn active" data-m="1.0" data-ft="3.28" onclick="setOpt('leds',this)">1.0 m / 3.28 ft</button>
+    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('leds',this)">1.5 m / 4.92 ft</button>
+    <button class="opt-btn" data-m="2.0" data-ft="6.56" onclick="setOpt('leds',this)">2.0 m / 6.56 ft</button>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">▶ CALCULATE QUANTITY & WEIGHT</button>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <!-- TOTAL WEIGHT HERO -->
+    <div class="section-label">Total Material Weight</div>
+    <div class="weight-hero" id="weight-hero"></div>
+
+    <div class="section-label">Calculation Parameters</div>
+    <div class="params-strip" id="params-strip"></div>
+
+    <div class="section-label">Component Summary — Qty & Weight</div>
+    <div class="summary-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th class="num">Wt/pc (kg)</th>
+            <th class="num">Base Qty</th>
+            <th class="num">+Buffer Qty</th>
+            <th class="num">Total Wt (kg)</th>
+          </tr>
+        </thead>
+        <tbody id="summary-body"></tbody>
+        <tfoot id="summary-foot"></tfoot>
+      </table>
+    </div>
+
+    <div class="note-box" id="note-box"></div>
+
+    <div class="btn-row">
+      <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+      <button class="reset-btn" onclick="resetForm()">✕ Reset</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────
+const state = { type: 'facade', liftM: 3.0, bayM: 1.8, ledsM: 1.0, unit: 'm' };
+
+// ── Unit weights (kg) — standard Cuplock IS reference ──
+// Standards: ~4.3 kg/m × length
+// Ledgers: ~3.0 kg/m × length
+// Transoms: ~3.0 kg/m × length
+// Diag brace: ~5.5 kg each (avg 2m brace)
+// Base plate: ~3.2 kg each
+// U-jack: ~2.8 kg each
+const WT = {
+  stdPerM:   4.3,   // kg per metre of standard
+  ledPerM:   3.0,
+  tranPerM:  3.0,
+  diag:      5.5,
+  base:      3.2,
+  ujack:     2.8
+};
+
+const FT2M = 0.3048;
+
+function toM(val) {
+  return state.unit === 'ft' ? val * FT2M : val;
+}
+
+function setUnit(u) {
+  state.unit = u;
+  document.getElementById('btn-m').classList.toggle('active', u === 'm');
+  document.getElementById('btn-ft').classList.toggle('active', u === 'ft');
+  ['u-len','u-ht','u-wd'].forEach(id => document.getElementById(id).textContent = u);
+  document.getElementById('lift-hint').textContent = u === 'm' ? '(metres)' : '(feet)';
+  document.getElementById('bay-hint').textContent  = u === 'm' ? '(metres)' : '(feet)';
+  // Update button labels
+  ['lift-opts','bay-opts','leds-opts'].forEach(gid => {
+    document.querySelectorAll(`#${gid} .opt-btn`).forEach(b => {
+      const mVal = parseFloat(b.dataset.m);
+      const ftVal = parseFloat(b.dataset.ft);
+      b.textContent = u === 'm' ? `${mVal} m` : `${ftVal} ft`;
+    });
+  });
+}
+
+function setOpt(key, el) {
+  const groupId = key === 'type' ? 'type-opts' : key === 'lift' ? 'lift-opts' : key === 'leds' ? 'leds-opts' : 'bay-opts';
+  document.querySelectorAll(`#${groupId} .opt-btn`).forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (key === 'type') { state.type = el.dataset.val; return; }
+  state[key + 'M'] = parseFloat(el.dataset.m);
+}
+
+function fmt(n, dec=0) { return n.toLocaleString('en-IN', {minimumFractionDigits: dec, maximumFractionDigits: dec}); }
+
+function calculate() {
+  const rawL = parseFloat(document.getElementById('length').value) || 0;
+  const rawH = parseFloat(document.getElementById('height').value) || 0;
+  const rawW = parseFloat(document.getElementById('width').value) || 1.2;
+  const buf  = parseFloat(document.getElementById('buffer').value) / 100 || 0.1;
+
+  if (!rawL || !rawH) { alert('Please enter Length and Height.'); return; }
+
+  // Convert to metres for all calculations
+  const L    = toM(rawL);
+  const H    = toM(rawH);
+  const W    = toM(rawW);
+  const lift = state.liftM;
+  const bay  = state.bayM;
+  const leds = state.ledsM;   // ledger vertical spacing
+  const isFacade = state.type === 'facade';
+
+  // ── Bay counts ──
+  const baysLen    = Math.ceil(L / bay);
+  const lifts      = Math.ceil(H / lift);
+  const ledLevels  = Math.ceil(H / leds);  // how many ledger levels across full height
+  const rows       = isFacade ? 2 : Math.ceil(W / bay) + 1;
+  const stdPos     = (baysLen + 1) * rows;
+
+  // ── Quantities ──
+  const standards  = stdPos * lifts;
+  const ledgers    = baysLen * rows * ledLevels;   // uses ledger spacing, not lift
+  const transoms   = (baysLen + 1) * (rows - 1) * ledLevels;
+  const diagFac    = isFacade ? 5 : 4;
+  const diags      = Math.ceil(baysLen / diagFac) * lifts * rows;
+  const basePlates = stdPos;
+  const ujacks     = stdPos;
+
+  const withBuf = v => Math.ceil(v * (1 + buf));
+
+  // ── Weights (always in kg, using metre values) ──
+  const wStd  = Math.round(standards  * lift * WT.stdPerM);
+  const wLed  = Math.round(ledgers    * bay  * WT.ledPerM);
+  const wTran = Math.round(transoms   * W    * WT.tranPerM);
+  const wDiag = Math.round(withBuf(diags)      * WT.diag);
+  const wBase = Math.round(withBuf(basePlates) * WT.base);
+  const wUjack= Math.round(withBuf(ujacks)     * WT.ujack);
+  const totalWt = wStd + wLed + wTran + wDiag + wBase + wUjack;
+  const totalWtBuf = Math.round(totalWt * (1 + buf));
+  const totalT  = (totalWt / 1000).toFixed(2);
+  const totalTBuf = (totalWtBuf / 1000).toFixed(2);
+
+  // unit label for display
+  const uL = state.unit;
+  const dispL = `${rawL} ${uL}`;
+  const dispH = `${rawH} ${uL}`;
+  const dispW = `${rawW} ${uL}`;
+  const liftDisp = uL === 'm' ? `${lift} m` : `${(lift/FT2M).toFixed(2)} ft`;
+  const bayDisp  = uL === 'm' ? `${bay} m`  : `${(bay/FT2M).toFixed(2)} ft`;
+  const ledsDisp = uL === 'm' ? `${leds} m` : `${(leds/FT2M).toFixed(2)} ft`;
+
+  // ── Weight Hero ──
+  document.getElementById('weight-hero').innerHTML = `
+    <div class="wh-icon">⚖️</div>
+    <div class="wh-body">
+      <div class="wh-label">Total Material Weight (Base Qty)</div>
+      <div class="wh-value">${fmt(totalWt)} <span style="font-size:24px;color:var(--muted)">kg</span></div>
+      <div class="wh-sub">≈ <strong style="color:var(--yellow)">${totalT} Tonnes</strong> &nbsp;|&nbsp; With ${(buf*100).toFixed(0)}% buffer: <strong style="color:var(--yellow)">${totalTBuf} T</strong> &nbsp;(${fmt(totalWtBuf)} kg)</div>
+    </div>
+    <div class="wh-breakdown">
+      <div>Standards &nbsp;<span>${fmt(wStd)} kg</span></div>
+      <div>Ledgers &nbsp;<span>${fmt(wLed)} kg</span></div>
+      <div>Transoms &nbsp;<span>${fmt(wTran)} kg</span></div>
+      <div>Diagonals &nbsp;<span>${fmt(wDiag)} kg</span></div>
+      <div>Base Plates &nbsp;<span>${fmt(wBase)} kg</span></div>
+      <div>U-Jacks &nbsp;<span>${fmt(wUjack)} kg</span></div>
+    </div>
+  `;
+
+  // ── Params strip ──
+  document.getElementById('params-strip').innerHTML = [
+    { v: dispL,       l: 'Length' },
+    { v: dispH,       l: 'Height' },
+    { v: dispW,       l: 'Width' },
+    { v: liftDisp,    l: 'Lift Ht' },
+    { v: bayDisp,     l: 'Bay Spacing' },
+    { v: ledsDisp,    l: 'Ledger Spacing' },
+    { v: baysLen,     l: 'Bays (Len)' },
+    { v: lifts,       l: 'Lifts' },
+    { v: ledLevels,   l: 'Ledger Levels' },
+    { v: rows,        l: 'Rows' },
+    { v: stdPos,      l: 'Std Positions' },
+  ].map(p => `<div class="param-item"><div class="pval">${p.v}</div><div class="plbl">${p.l}</div></div>`).join('');
+
+  // ── Summary table ──
+  const rows2 = [
+    { name: 'Standards',                          wtPc: (lift * WT.stdPerM).toFixed(1), base: standards,  wt: wStd },
+    { name: `Ledgers (${bayDisp} · every ${ledsDisp})`, wtPc: (bay * WT.ledPerM).toFixed(1),  base: ledgers,   wt: wLed },
+    { name: `Transoms (${uL==='m'?W.toFixed(1):(rawW)} ${uL} · every ${ledsDisp})`, wtPc: (W * WT.tranPerM).toFixed(1), base: transoms, wt: wTran },
+    { name: 'Diagonal Braces',                    wtPc: WT.diag.toFixed(1),             base: diags,      wt: wDiag },
+    { name: 'Base Plates',                        wtPc: WT.base.toFixed(1),             base: basePlates, wt: wBase },
+    { name: 'U-Jacks (Top)',                      wtPc: WT.ujack.toFixed(1),            base: ujacks,     wt: wUjack },
+  ];
+
+  document.getElementById('summary-body').innerHTML = rows2.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td class="num">${r.wtPc}</td>
+      <td class="num qty-base">${fmt(r.base)}</td>
+      <td class="num qty-buf">${fmt(withBuf(r.base))}</td>
+      <td class="num wt">${fmt(r.wt)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('summary-foot').innerHTML = `
+    <tr>
+      <td colspan="2">TOTAL WEIGHT</td>
+      <td style="text-align:right">${fmt(totalWt)} kg</td>
+      <td style="text-align:right">${fmt(totalWtBuf)} kg</td>
+      <td style="text-align:right">${totalT} T &nbsp;/ ${totalTBuf} T</td>
+    </tr>
+  `;
+
+  document.getElementById('note-box').innerHTML =
+    `ℹ️ <strong>Weight reference:</strong> Standards ~4.3 kg/m · Ledgers/Transoms ~3.0 kg/m · Diag brace ~5.5 kg · Base plate ~3.2 kg · U-Jack ~2.8 kg (IS/standard Cuplock tube weights). ` +
+    `<strong>Ledger spacing:</strong> ${ledsDisp} — ledger & transom counts calculated at this vertical interval independently of lift height. ` +
+    `Dimensions entered in <strong>${state.unit === 'm' ? 'Metres' : 'Feet'}</strong>. Buffer <strong>${(buf*100).toFixed(0)}%</strong> applied.`;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetForm() {
+  document.getElementById('results').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
