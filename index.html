@@ -278,7 +278,7 @@
     <button id="btn-m" class="active" onclick="setUnit('m')">METRE</button>
     <button id="btn-ft" onclick="setUnit('ft')">FEET</button>
   </div>
-  <div class="badge">v4.0</div>
+  <div class="badge">v5.0</div>
 </header>
 
 <main>
@@ -323,25 +323,25 @@
 
   <div class="section-label">Vertical Lift <span id="lift-hint" style="color:var(--muted);font-size:9px;margin-left:6px">(metres)</span></div>
   <div class="options-row" id="lift-opts">
-    <button class="opt-btn" data-m="0.5"  data-ft="1.64" onclick="setOpt('lift',this)">0.5 m / 1.64 ft</button>
-    <button class="opt-btn" data-m="1.0"  data-ft="3.28" onclick="setOpt('lift',this)">1.0 m / 3.28 ft</button>
-    <button class="opt-btn" data-m="1.5"  data-ft="4.92" onclick="setOpt('lift',this)">1.5 m / 4.92 ft</button>
-    <button class="opt-btn active" data-m="3.0" data-ft="9.84" onclick="setOpt('lift',this)">3.0 m / 9.84 ft</button>
+    <button class="opt-btn" data-m="1.0"  data-ft="3.28"  onclick="setOpt('lift',this)">1.0 m</button>
+    <button class="opt-btn" data-m="1.5"  data-ft="4.92"  onclick="setOpt('lift',this)">1.5 m</button>
+    <button class="opt-btn" data-m="2.0"  data-ft="6.56"  onclick="setOpt('lift',this)">2.0 m</button>
+    <button class="opt-btn" data-m="2.5"  data-ft="8.20"  onclick="setOpt('lift',this)">2.5 m</button>
+    <button class="opt-btn active" data-m="3.0" data-ft="9.84" onclick="setOpt('lift',this)">3.0 m</button>
   </div>
 
   <div class="section-label">Horizontal Bay Spacing <span id="bay-hint" style="color:var(--muted);font-size:9px;margin-left:6px">(metres)</span></div>
   <div class="options-row" id="bay-opts">
-    <button class="opt-btn" data-m="1.2" data-ft="3.94" onclick="setOpt('bay',this)">1.2 m / 3.94 ft</button>
-    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('bay',this)">1.5 m / 4.92 ft</button>
-    <button class="opt-btn active" data-m="1.8" data-ft="5.91" onclick="setOpt('bay',this)">1.8 m / 5.91 ft</button>
-    <button class="opt-btn" data-m="2.4" data-ft="7.87" onclick="setOpt('bay',this)">2.4 m / 7.87 ft</button>
+    <button class="opt-btn" data-m="1.2" data-ft="3.94" onclick="setOpt('bay',this)">1.2 m</button>
+    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('bay',this)">1.5 m</button>
+    <button class="opt-btn active" data-m="1.8" data-ft="5.91" onclick="setOpt('bay',this)">1.8 m</button>
   </div>
 
-  <div class="section-label">Ledger Vertical Spacing <span style="color:var(--muted);font-size:9px;margin-left:6px">(gap between horizontal ledger levels on standard)</span></div>
+  <div class="section-label">Ledger Vertical Spacing <span style="color:var(--muted);font-size:9px;margin-left:6px">(gap between horizontal ledger levels)</span></div>
   <div class="options-row" id="leds-opts">
-    <button class="opt-btn active" data-m="1.0" data-ft="3.28" onclick="setOpt('leds',this)">1.0 m / 3.28 ft</button>
-    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('leds',this)">1.5 m / 4.92 ft</button>
-    <button class="opt-btn" data-m="2.0" data-ft="6.56" onclick="setOpt('leds',this)">2.0 m / 6.56 ft</button>
+    <button class="opt-btn active" data-m="1.0" data-ft="3.28" onclick="setOpt('leds',this)">1.0 m</button>
+    <button class="opt-btn" data-m="1.5" data-ft="4.92" onclick="setOpt('leds',this)">1.5 m</button>
+    <button class="opt-btn" data-m="2.0" data-ft="6.56" onclick="setOpt('leds',this)">2.0 m</button>
   </div>
 
   <button class="calc-btn" onclick="calculate()">▶ CALCULATE QUANTITY & WEIGHT</button>
@@ -395,10 +395,10 @@ const state = { type: 'facade', liftM: 3.0, bayM: 1.8, ledsM: 1.0, unit: 'm' };
 // Base plate: ~3.2 kg each
 // U-jack: ~2.8 kg each
 const WT = {
-  stdPerM:   4.3,   // kg per metre of standard
-  ledPerM:   3.0,
-  tranPerM:  3.0,
-  diag:      5.5,
+  stdPerM:   4.55,  // kg per metre of standard (IS Cuplock)
+  ledPerM:   3.8,   // kg per metre of ledger/transom
+  tranPerM:  3.8,
+  diag:      20.0,  // kg per diagonal brace (6m)
   base:      3.2,
   ujack:     2.8
 };
@@ -416,12 +416,11 @@ function setUnit(u) {
   ['u-len','u-ht','u-wd'].forEach(id => document.getElementById(id).textContent = u);
   document.getElementById('lift-hint').textContent = u === 'm' ? '(metres)' : '(feet)';
   document.getElementById('bay-hint').textContent  = u === 'm' ? '(metres)' : '(feet)';
-  // Update button labels
+  // Show only the selected unit label on buttons — no combination
   ['lift-opts','bay-opts','leds-opts'].forEach(gid => {
     document.querySelectorAll(`#${gid} .opt-btn`).forEach(b => {
-      const mVal = parseFloat(b.dataset.m);
-      const ftVal = parseFloat(b.dataset.ft);
-      b.textContent = u === 'm' ? `${mVal} m` : `${ftVal} ft`;
+      const val = u === 'm' ? parseFloat(b.dataset.m) : parseFloat(b.dataset.ft);
+      b.textContent = `${val} ${u}`;
     });
   });
 }
@@ -527,12 +526,12 @@ function calculate() {
 
   // ── Summary table ──
   const rows2 = [
-    { name: 'Standards',                          wtPc: (lift * WT.stdPerM).toFixed(1), base: standards,  wt: wStd },
-    { name: `Ledgers (${bayDisp} · every ${ledsDisp})`, wtPc: (bay * WT.ledPerM).toFixed(1),  base: ledgers,   wt: wLed },
+    { name: 'Standards (3m)',                               wtPc: (lift * WT.stdPerM).toFixed(1), base: standards,  wt: wStd },
+    { name: `Ledgers (${bayDisp} · every ${ledsDisp})`,    wtPc: (bay * WT.ledPerM).toFixed(1),  base: ledgers,    wt: wLed },
     { name: `Transoms (${uL==='m'?W.toFixed(1):(rawW)} ${uL} · every ${ledsDisp})`, wtPc: (W * WT.tranPerM).toFixed(1), base: transoms, wt: wTran },
-    { name: 'Diagonal Braces',                    wtPc: WT.diag.toFixed(1),             base: diags,      wt: wDiag },
-    { name: 'Base Plates',                        wtPc: WT.base.toFixed(1),             base: basePlates, wt: wBase },
-    { name: 'U-Jacks (Top)',                      wtPc: WT.ujack.toFixed(1),            base: ujacks,     wt: wUjack },
+    { name: 'Diagonal Braces (6m)',                         wtPc: WT.diag.toFixed(1),             base: diags,      wt: wDiag },
+    { name: 'Base Plates',                                  wtPc: WT.base.toFixed(1),             base: basePlates, wt: wBase },
+    { name: 'U-Jacks (Top)',                                wtPc: WT.ujack.toFixed(1),            base: ujacks,     wt: wUjack },
   ];
 
   document.getElementById('summary-body').innerHTML = rows2.map(r => `
@@ -555,7 +554,7 @@ function calculate() {
   `;
 
   document.getElementById('note-box').innerHTML =
-    `ℹ️ <strong>Weight reference:</strong> Standards ~4.3 kg/m · Ledgers/Transoms ~3.0 kg/m · Diag brace ~5.5 kg · Base plate ~3.2 kg · U-Jack ~2.8 kg (IS/standard Cuplock tube weights). ` +
+    `ℹ️ <strong>Weight reference:</strong> Standards ~4.55 kg/m · Ledgers/Transoms ~3.8 kg/m · Diag brace ~20 kg (6m) · Base plate ~3.2 kg · U-Jack ~2.8 kg (IS/standard Cuplock tube weights). ` +
     `<strong>Ledger spacing:</strong> ${ledsDisp} — ledger & transom counts calculated at this vertical interval independently of lift height. ` +
     `Dimensions entered in <strong>${state.unit === 'm' ? 'Metres' : 'Feet'}</strong>. Buffer <strong>${(buf*100).toFixed(0)}%</strong> applied.`;
 
