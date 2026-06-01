@@ -278,7 +278,7 @@
     <button id="btn-m" class="active" onclick="setUnit('m')">METRE</button>
     <button id="btn-ft" onclick="setUnit('ft')">FEET</button>
   </div>
-  <div class="badge">v5.0</div>
+  <div class="badge">v5.1</div>
 </header>
 
 <main>
@@ -464,7 +464,7 @@ function calculate() {
   const ledgers    = baysLen * rows * ledLevels;   // uses ledger spacing, not lift
   const transoms   = (baysLen + 1) * (rows - 1) * ledLevels;
   const diagFac    = isFacade ? 5 : 4;
-  const diags      = Math.ceil(baysLen / diagFac) * lifts * rows;
+  const diags      = Math.ceil(baysLen / diagFac) * rows;
   const basePlates = stdPos;
   const ujacks     = stdPos;
 
